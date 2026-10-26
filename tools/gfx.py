@@ -105,22 +105,17 @@ def pc_font(build_font):
     return Font(g, 16)
 
 
-BLOCK_ORDER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .\u00b7:\'"'
+BLOCK_ORDER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .\u00b7:\'",-?!'
 
 
-def block_font(dialogue_set):
-    """the arcade 8x16 block letters (first entries of the dialogue set)"""
+def block_font(font_spr):
+    """the 8x16 block letters (the first cells of FONT.SPR)"""
     g = {}
     for i, ch in enumerate(BLOCK_ORDER):
-        w, h, px = dialogue_set.get(i)
+        w, h, px = font_spr.get(i)
         g[ch] = (8, w, h, px)
-    # the apostrophe, narrower; a hyphen made in the same shading
-    adv, w, h, px = g["'"]
-    g["'"] = (4, w, h, [px[y * w + x + 2] if x + 2 < w else 0 for y in range(h) for x in range(w)])
-    hy = [0] * (8 * 16)
-    for x, (a, b, c) in enumerate(((6, 5, 0), (10, 8, 4), (10, 8, 4), (10, 8, 4), (10, 8, 4), (6, 4, 2))):
-        hy[7 * 8 + x + 1], hy[8 * 8 + x + 1] = a, b
-        if c:
-            hy[9 * 8 + x + 1] = c
-    g['-'] = (8, 8, 16, hy)
+    # the apostrophe and the comma, narrower
+    for c in "',":
+        adv, w, h, px = g[c]
+        g[c] = (4, w, h, [px[y * w + x + 2] if x + 2 < w else 0 for y in range(h) for x in range(w)])
     return Font(g, 16)

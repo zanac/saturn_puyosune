@@ -3,8 +3,10 @@
 The Windows version is a port of the Saturn one: the .SPR files below are
 grp.dat entries with the same frames and colour numbers, and the
 pictures the patch translated go in as they are. A translated picture
-wider or taller than its frame (the Windows game draws the whole part)
-gets a cell of its size, the picture from the cell's top left corner.
+may reach past its frame (the Windows game draws the whole part), but a
+cell may not grow (the game gives each set the room of the original in
+video memory, all used): a picture whose pixels outside the frame are
+all clear is cut to the frame, any other is shrunk into it.
 """
 from spr import Spr
 
@@ -20,17 +22,16 @@ PICTURES = [
     ('SND_TITL', 180, list(range(30))),     # sound test: titles of the music
     ('SND_MES', 179, [1, 2, 3, 4, 5, 7]),   # sound test: Music, controls
     ('RMENU', 226, [38, 39, 40, 41, 47]),   # rules for two players
-    ('STAFF', 227, [0]),
 ]
 
 
-def wide(p):
-    """the picture in a cell of its own size (w a multiple of 8)"""
-    w = (p.W + 7) & ~7
-    px = []
-    for y in range(p.H):
-        px += p.px[y * p.W:(y + 1) * p.W] + [0] * (w - p.W)
-    return w, p.H, px
+def fit(p):
+    """the picture in its frame: cut if nothing is outside, else shrunk"""
+    outside = [p.px[y * p.W + x] for y in range(p.H) for x in range(p.W)
+               if not (p.fx <= x < p.fx + p.w and p.fy <= y < p.fy + p.h)]
+    if not any(outside):
+        return p.frame(), False
+    return [p.px[(y * p.H // p.h) * p.W + x * p.W // p.w] for y in range(p.h) for x in range(p.w)], True
 
 
 def build(files, grp):
@@ -39,19 +40,16 @@ def build(files, grp):
     for name, entry, ids in PICTURES:
         s = Spr(files[name + '.SPR'])
         pics = grp.frames(entry)
-        n = grown = 0
+        n = shrunk = 0
         for i in ids:
             i, j = i if isinstance(i, tuple) else (i, i)
             p = pics[j]
             w, h, o, size = s.desc[i]
             assert (p.w, p.h) == (w, h), (name, i)
-            if p.inside():
-                s.put(i, [v & 15 if v else 0 for v in p.px])
-            else:
-                W, H, px = wide(p)
-                s.put(i, [v & 15 if v else 0 for v in px], W, H)
-                grown += 1
+            px, small = fit(p)
+            s.put(i, [v & 15 if v else 0 for v in px])
+            shrunk += small
             n += 1
         files[name + '.SPR'] = s.blob()
-        log.append('%s: %d pictures from the patch (%d wider)' % (name, n, grown))
+        log.append('%s: %d pictures from the patch (%d shrunk)' % (name, n, shrunk))
     return log
