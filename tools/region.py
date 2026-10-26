@@ -10,10 +10,11 @@ by their size. Its few absolute references to itself are moved with it
 """
 import struct
 
-AREAS = [('J', 'For JAPAN.'), ('T', 'For TAIWAN and PHILIPINES.'),
-         ('U', 'For USA and CANADA.'), ('B', 'For BRAZIL.'),
-         ('K', 'For KOREA.'), ('A', 'For ASIA PAL area.'),
-         ('E', 'For EUROPE.'), ('L', 'For LATIN AMERICA.')]
+# USA first: an emulator that takes the region from the disc (the first
+# symbol) starts as a US console, so the two-language disc starts in English
+AREAS = [('U', 'For USA and CANADA.'), ('E', 'For EUROPE.'), ('J', 'For JAPAN.'),
+         ('T', 'For TAIWAN and PHILIPINES.'), ('B', 'For BRAZIL.'), ('K', 'For KOREA.'),
+         ('A', 'For ASIA PAL area.'), ('L', 'For LATIN AMERICA.')]
 GROUPS = 0xe00
 IP_BASE = 0x06002000
 SECTORS = 16
@@ -27,7 +28,7 @@ def patch(ip):
     """ip: the 32 KB of IP.BIN; returns the patched copy"""
     ip = bytearray(ip)
     assert ip[:16] == b'SEGA SEGASATURN '
-    assert ip[0x40:0x50] == b'J'.ljust(16) and ip[GROUPS:GROUPS + 32] == group(AREAS[0][1])
+    assert ip[0x40:0x50] == b'J'.ljust(16) and ip[GROUPS:GROUPS + 32] == group('For JAPAN.')
     size = struct.unpack('>I', ip[0xe0:0xe4])[0]
     start = GROUPS + 32                  # the initial program
     end = len(ip.rstrip(b'\0'))
