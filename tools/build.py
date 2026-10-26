@@ -24,6 +24,7 @@ import screens
 from spr import Spr
 import options
 import pcgrp
+import region
 import story
 import text
 import tutorial
@@ -69,6 +70,7 @@ def build(track_path, grp_blob, comic):
             moved += t.files[name][1] != before
     log.append('%d files changed, %d moved to the end of the track' % (
         sum(files[n] != orig[n] for n in files), moved))
+    log += region.build(t)
     return t.finish(), log
 
 

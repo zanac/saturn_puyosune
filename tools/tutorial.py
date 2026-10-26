@@ -14,9 +14,9 @@ FIRST, LAST = 0x060834c0, 0x06083be0
 LINES = [
     "Hi, I'm Arle!",
     "I'll explain the rules now.",
-    "You move the puyos with the D-pad.",
+    "You move the puyos with the lever.",
     "Left and right, back and forth~",
-    "Push the D-pad down to drop them faster.",
+    "Push the lever down to drop them faster.",
     "Press a button and they spin around.",
     "4 puyos of one color that touch will vanish.",
     "When puyos vanish, the ones above fall...",
