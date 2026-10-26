@@ -21,6 +21,7 @@ import nameentry
 import ranking
 import results
 import screens
+import signs
 from spr import Spr
 import options
 import pcgrp
@@ -50,6 +51,7 @@ def build(track_path, grp_blob, comic):
     log += aaa.build(files, pc)
     log += atelier.build(files, pc)
     log += backup.build(files, pc)
+    log += signs.build(files)
     prog, glyphs, widths, tlog = text.build(files, grp_blob)
     log += tlog
     charmap = {c: [c] for c in glyphs}
