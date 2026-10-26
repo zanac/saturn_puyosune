@@ -12,6 +12,7 @@ import gamesel
 import gfx
 import aaa
 import aids
+import bilingual
 import atelier
 import backup
 import images
@@ -31,7 +32,8 @@ import text
 import tutorial
 
 
-def build(track_path, grp_blob, comic):
+def build(track_path, grp_blob, comic, both=False):
+    """both: one disc with the two languages (bilingual.py)"""
     t = disc.Track(track_path)
     files = {}
     for name in t.files:
@@ -63,6 +65,14 @@ def build(track_path, grp_blob, comic):
     log += nameentry.build(files, prog, pc)
     log += ending.build(files, prog, pc)
     log.append('program free area used to %x' % prog.free)
+    changed = [n for n in files if files[n] != orig[n] and n != '0']
+    if both:
+        log += bilingual.build(prog, orig['0'], changed)
+        t.put('0', bytes(prog.b))
+        t.add({bilingual.english_name(n): files[n] for n in changed})
+        log.append('%d files in English beside the Japanese ones' % len(changed))
+        log += region.build(t)
+        return t.finish(), log
     files['0'] = bytes(prog.b)
     moved = 0
     for name, blob in files.items():
@@ -77,9 +87,10 @@ def build(track_path, grp_blob, comic):
 
 
 def main():
-    track, grp, comic, dst = sys.argv[1:5]
+    args = [a for a in sys.argv[1:] if a != '--both']
+    track, grp, comic, dst = args[:4]
     import os
-    out, log = build(track, open(grp, 'rb').read(), open(comic, 'rb').read())
+    out, log = build(track, open(grp, 'rb').read(), open(comic, 'rb').read(), '--both' in sys.argv)
     for line in log:
         print(line)
     os.makedirs(dst, exist_ok=True)

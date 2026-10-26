@@ -6,6 +6,9 @@ Windows version, both as they come. Python 3 standard library only.
 
 OUT_DIR receives "Puyo Puyo Sun (English).cue" with its two tracks: the
 data track rebuilt, the audio track copied.
+
+With --both (experimental) the disc has the two languages: Japanese on a
+Japanese console, English on any other ("Puyo Puyo Sun (J+E).cue").
 """
 import hashlib
 import os
@@ -18,6 +21,7 @@ import build
 
 TRACKS = [('e1afff40', 464670528), ('3f0834c8', 5435472)]
 NAME = 'Puyo Puyo Sun (English)'
+NAME_BOTH = 'Puyo Puyo Sun (J+E)'
 CUE = '''FILE "{0} (Track 1).bin" BINARY
   TRACK 01 MODE1/2352
     INDEX 01 00:00:00
@@ -57,9 +61,12 @@ def read_member(z, name):
 
 
 def main():
-    if len(sys.argv) != 4:
+    both = '--both' in sys.argv
+    args = [a for a in sys.argv[1:] if a != '--both']
+    if len(args) != 3:
         raise SystemExit(__doc__)
-    cue, patch, dst = sys.argv[1:4]
+    cue, patch, dst = args
+    name = NAME_BOTH if both else NAME
     bins = tracks(cue)
     if len(bins) != 2:
         raise SystemExit('%s: expected 2 tracks, found %d' % (cue, len(bins)))
@@ -69,20 +76,20 @@ def main():
     zp = zipfile.ZipFile(patch)
     grp = read_member(zp, 'puyo3/grp.dat')
     comic = read_member(zp, 'puyo3/comic.scr')
-    out, log = build.build(bins[0], grp, comic)
+    out, log = build.build(bins[0], grp, comic, both)
     for line in log:
         print(line)
     os.makedirs(dst, exist_ok=True)
-    t1 = os.path.join(dst, NAME + ' (Track 1).bin')
-    t2 = os.path.join(dst, NAME + ' (Track 2).bin')
+    t1 = os.path.join(dst, name + ' (Track 1).bin')
+    t2 = os.path.join(dst, name + ' (Track 2).bin')
     open(t1, 'wb').write(out)
     shutil.copyfile(bins[1], t2)
-    open(os.path.join(dst, NAME + '.cue'), 'w', newline='\r\n').write(CUE.format(NAME))
+    open(os.path.join(dst, name + '.cue'), 'w', newline='\r\n').write(CUE.format(name))
     for path in (t1, t2):
         d = open(path, 'rb').read()
         print('%-40s %10d  crc %s  sha1 %s' % (os.path.basename(path), len(d),
                                               '%08x' % (zlib.crc32(d) & 0xffffffff), hashlib.sha1(d).hexdigest()))
-    print('wrote', os.path.join(dst, NAME + '.cue'))
+    print('wrote', os.path.join(dst, name + '.cue'))
 
 
 if __name__ == '__main__':

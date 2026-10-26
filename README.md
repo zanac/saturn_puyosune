@@ -43,6 +43,24 @@ The boot header lists every region, so the disc boots on Japanese, US
 and European consoles and BIOS images (checked with the US BIOS, which
 refuses the Japanese disc).
 
+### One disc for both languages (experimental, branch `region-language`)
+
+    python3 tools/make_saturn_puyosune.py "Puyo Puyo Sun (Japan) (Rev A) (10M).cue" Puyo_Puyo_Sun__English_Patched_.zip OUT_DIR --both
+
+makes `Puyo Puyo Sun (J+E).cue`: Japanese on a Japanese console, English
+on any other. At start up a small stub asks the SMPC for the area code;
+on a Japanese console it puts the original bytes of the program back,
+else it sets an English flag, and the game's file lookup then reads the
+English copies of the translated files (`FONT.SPR` -> `FONT.SPE`, both
+on the disc). See `tools/bilingual.py`. Checked in Yaba Sanshiro with the
+area code forced to Japan, USA and Europe (title, game select, character
+select, story scene).
+
+| File | Size | CRC32 |
+|---|---|---|
+| Puyo Puyo Sun (J+E) (Track 1).bin | 465300864 | `3abf2e9e` |
+| Puyo Puyo Sun (J+E) (Track 2).bin | 5435472 | `3f0834c8` |
+
 ## Status
 
 | Part | State |

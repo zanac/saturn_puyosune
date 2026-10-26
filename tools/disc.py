@@ -145,6 +145,83 @@ class Track:
         d[off + 10:off + 18] = struct.pack('<I', size) + struct.pack('>I', size)
         self.write_data(self.root_lba + sec, bytes(d))
 
+    def add(self, files):
+        """new files {name: blob}: their data after the end of the track,
+        the root directory rebuilt with them (sorted, as ISO 9660 wants)
+        and moved after the end of the track when it needs more sectors"""
+        d = b''.join(self.data(self.root_lba + i) for i in range(self.root_size // DATA))
+        recs = []
+        o = 0
+        while o < len(d):
+            n = d[o]
+            if n == 0:
+                o = (o // DATA + 1) * DATA
+                continue
+            recs.append(bytearray(d[o:o + n]))
+            o += n
+        dot, dotdot, rest = recs[0], recs[1], recs[2:]
+        template = rest[0]
+        for name, blob in files.items():
+            assert name not in self.files, name
+            lba = self.sectors
+            need = (len(blob) + DATA - 1) // DATA
+            padded = blob + bytes(need * DATA - len(blob))
+            for i in range(need):
+                self.write_data(lba + i, padded[i * DATA:(i + 1) * DATA])
+            ident = (name + ';1').encode()
+            n = 33 + len(ident)
+            n += n & 1
+            r = bytearray(n)
+            r[0] = n
+            r[18:25] = template[18:25]          # date
+            r[25] = template[25]                # flags
+            r[28:32] = template[28:32]          # volume sequence
+            r[32] = len(ident)
+            r[33:33 + len(ident)] = ident
+            r[2:10] = struct.pack('<I', lba) + struct.pack('>I', lba)
+            r[10:18] = struct.pack('<I', len(blob)) + struct.pack('>I', len(blob))
+            rest.append(r)
+        rest.sort(key=lambda r: bytes(r[33:33 + r[32]]))
+        sectors = [bytearray()]
+        for r in [dot, dotdot] + rest:
+            if len(sectors[-1]) + len(r) > DATA:
+                sectors.append(bytearray())
+            sectors[-1] += r
+        size = len(sectors) * DATA
+        lba = self.root_lba if size <= self.root_size else self.sectors
+        for r in (dot, dotdot):
+            r[2:10] = struct.pack('<I', lba) + struct.pack('>I', lba)
+            r[10:18] = struct.pack('<I', size) + struct.pack('>I', size)
+        sectors[0][:len(dot)] = dot
+        sectors[0][len(dot):len(dot) + len(dotdot)] = dotdot
+        for i, sec in enumerate(sectors):
+            self.write_data(lba + i, bytes(sec + bytes(DATA - len(sec))))
+        for i in range(len(sectors), self.root_size // DATA):
+            if lba == self.root_lba:
+                self.write_data(lba + i, bytes(DATA))
+        pvd = bytearray(self.data(16))
+        pvd[156 + 2:156 + 10] = struct.pack('<I', lba) + struct.pack('>I', lba)
+        pvd[156 + 10:156 + 18] = struct.pack('<I', size) + struct.pack('>I', size)
+        self.write_data(16, bytes(pvd))
+        # the path tables: one entry, the root
+        for at, fmt in ((struct.unpack('<I', pvd[140:144])[0], '<I'), (struct.unpack('>I', pvd[148:152])[0], '>I')):
+            pt = bytearray(self.data(at))
+            pt[2:6] = struct.pack(fmt, lba)
+            self.write_data(at, bytes(pt))
+        self.root_lba, self.root_size = lba, size
+        # the file table again
+        self.files = {}
+        off = 0
+        for i, sec in enumerate(sectors):
+            o = 0
+            while o < len(sec):
+                r = sec[o:o + sec[o]]
+                name = r[33:33 + r[32]]
+                if name not in (b'\x00', b'\x01'):
+                    self.files[name.decode().split(';')[0]] = (i * DATA + o, struct.unpack('<I', r[2:6])[0],
+                                                                struct.unpack('<I', r[10:14])[0])
+                o += sec[o]
+
     def finish(self):
         """volume size in the primary volume descriptor"""
         d = bytearray(self.data(16))
