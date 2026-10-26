@@ -41,6 +41,25 @@ class Spr:
             self.desc[k] = [w, h, o, (w // 8) << 8 | h]
         self.pix[o * 8:o * 8 + w * h // 2] = bytes((px[i] << 4) | px[i + 1] for i in range(0, w * h, 2))
 
+    def repack(self, cells):
+        """cells: {k: (w, h, pixels)} new cells (any size); all the cells
+        are laid out again one after the other. The pixels may not take
+        more room than the original set (the game gives each set the
+        room of the original in video memory)."""
+        room = len(self.pix)
+        allc = []
+        for k in range(len(self.desc)):
+            allc.append(cells[k] if k in cells else self.get(k))
+        pix = bytearray()
+        for k, (w, h, px) in enumerate(allc):
+            assert w % 8 == 0 and len(px) == w * h and max(px) < 16, k
+            o = len(pix) // 8
+            pix += bytes((px[i] << 4) | px[i + 1] for i in range(0, w * h, 2))
+            pix += bytes(-len(pix) % 8)
+            self.desc[k] = [w, h, o, (w // 8) << 8 | h]
+        assert len(pix) <= room, 'sprite set too big: %d > %d' % (len(pix), room)
+        self.pix = pix
+
     def blob(self):
         out = struct.pack('>H', len(self.desc)) + self.head
         out += b''.join(struct.pack('>4H', *d) for d in self.desc)
