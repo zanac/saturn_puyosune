@@ -36,7 +36,7 @@ copied. Expected result:
 
 | File | Size | CRC32 |
 |---|---|---|
-| Puyo Puyo Sun (English) (Track 1).bin | 464755200 | `e07d9335` |
+| Puyo Puyo Sun (English) (Track 1).bin | 464755200 | `e176b23c` |
 | Puyo Puyo Sun (English) (Track 2).bin | 5435472 | `3f0834c8` |
 
 The boot header lists every region, so the disc boots on Japanese, US
@@ -45,7 +45,55 @@ refuses the Japanese disc).
 
 ## Status
 
-STATUS_TABLE
+| Part | State |
+|---|---|
+| Story scenes, 24 (167 pages) | English (Puyo Nexus), checked in the emulator |
+| Win quotes, 69 | English (Puyo Nexus, the missing ones translated here), checked in the emulator |
+| Title logo, game select (the four TV screens), course select, practice balloon | English, checked in the emulator |
+| Map: story title plaques, difficulty, opponent names | English, checked in the emulator |
+| In-game: YEAH!/OH NO!, All Clear!, curry levels, side tags | English, checked in the emulator |
+| In-game: chain tag, Offset | English (patch pictures) |
+| Rules demonstration | English, checked in the emulator |
+| Continue, Game Over, ranking (difficulty labels, CHAIN, ENDLESS), name entry title | English, checked in the emulator |
+| Results after the last stage (VS names, MAX CHAIN, Total) and the endings | English, checked in the emulator for the three courses (Draco, Arle, and Schezo with the secret stage against Carbuncle) |
+| Endless (tokoton) mode: level select, Pause, rank and name | English, checked in the emulator |
+| Two players: fighter select, rules menu, handicap levels | English, checked in the emulator |
+| Options: setup, versus rules, gallery pages and key configuration | English, checked in the emulator |
+| Sound test (music titles), atelier information page, message from AAA | English, checked in the emulator |
+| Act Against AIDS screen (attract mode) | English slogan, checked in the emulator |
+| Saved data messages (backup memory full or missing) | English; not seen on screen (they need a full or missing backup memory) |
+| Story backgrounds: the curry stand's sign (Nohoho), the cleaning board (Kikimora) | English, checked in the emulator |
+| Boot header with every region | done, checked with the US BIOS |
+
+Left as they are: the voices; the animated opening (a video stream, with
+the kana logo "Puyo Puyo" at its end, as on the PC version); the credits
+roll, which is English already.
+
+## Screenshots
+
+| | |
+|---|---|
+| Title | ![title](screenshots/title.png) |
+| Game select | ![game select](screenshots/game_select.png) |
+| Course select | ![course select](screenshots/course_select.png) |
+| Story scene | ![story](screenshots/story.png) |
+| Win quote | ![win quote](screenshots/win_quote.png) |
+| Map | ![map](screenshots/map.png) |
+| Curry stand (story background) | ![curry stand](screenshots/curry_stand.png) |
+| Cleaning board (story background) | ![cleaning board](screenshots/cleaning_board.png) |
+| Rules demonstration | ![rules](screenshots/rules.png) |
+| Pause (endless mode) | ![pause](screenshots/pause.png) |
+| Name entry | ![name entry](screenshots/name_entry.png) |
+| Ranking | ![ranking](screenshots/ranking.png) |
+| Results | ![results](screenshots/results.png) |
+| Ending | ![ending](screenshots/ending_arle.png) |
+| Two players: rules | ![versus rules](screenshots/versus_rules.png) |
+| Two players: handicap | ![handicap](screenshots/handicap.png) |
+| Options | ![options](screenshots/options.png) |
+| Options: versus rules | ![options versus](screenshots/options_versus.png) |
+| Options: gallery | ![options gallery](screenshots/options_gallery.png) |
+| Sound test | ![sound test](screenshots/sound_test.png) |
+| Message from AAA | ![aaa](screenshots/aaa_message.png) |
 
 ## How it works
 

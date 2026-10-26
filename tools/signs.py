@@ -54,7 +54,7 @@ def curry(files):
 
 BOARD_ROWS = (108, 150)
 BOARD_X = (64, 104)
-BOARD_INK = {59, 61, 73, 88, 113}     # the letters (dark on the light board)
+BOARD_INK = {59, 61, 73, 88, 113, 153, 154, 164, 178}   # the letters and their edges
 BOARD_DARK = 59
 TINY = {   # 4x4 letters
     'C': ['.###', '#...', '#...', '.###'],
