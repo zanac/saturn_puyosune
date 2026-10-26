@@ -10,6 +10,8 @@ import font
 import images
 import options
 import pcgrp
+import story
+import text
 
 
 def build(track_path, grp_blob, comic):
@@ -23,6 +25,13 @@ def build(track_path, grp_blob, comic):
     pc = font.pc_font(grp_blob)
     log += images.build(files, grp)
     log += options.build(files, pc)
+    prog, glyphs, widths, tlog = text.build(files, grp_blob)
+    log += tlog
+    charmap = {c: [c] for c in glyphs}
+    charmap[0x1f] = [0x2c, 0x20]        # the patch writes ", " as one character
+    log += story.build(prog, comic, charmap, widths)
+    log.append('program free area used to %x' % prog.free)
+    files['0'] = bytes(prog.b)
     moved = 0
     for name, blob in files.items():
         if blob != orig[name]:
