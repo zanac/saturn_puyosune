@@ -36,12 +36,14 @@ copied. Expected result:
 
 | File | Size | CRC32 |
 |---|---|---|
-| Puyo Puyo Sun (English) (Track 1).bin | 464755200 | `e176b23c` |
+| Puyo Puyo Sun (English) (Track 1).bin | 464755200 | `6c2fda2b` |
 | Puyo Puyo Sun (English) (Track 2).bin | 5435472 | `3f0834c8` |
 
 The boot header lists every region, so the disc boots on Japanese, US
 and European consoles and BIOS images (checked with the US BIOS, which
-refuses the Japanese disc).
+refuses the Japanese disc, and with the Japanese BIOS). USA is the first
+area listed: an emulator that takes the region from the disc (Yaba
+Sanshiro with its HLE BIOS) starts as a US console.
 
 ### One disc for both languages (experimental, branch `region-language`)
 
@@ -52,13 +54,15 @@ on any other. At start up a small stub asks the SMPC for the area code;
 on a Japanese console it puts the original bytes of the program back,
 else it sets an English flag, and the game's file lookup then reads the
 English copies of the translated files (`FONT.SPR` -> `FONT.SPE`, both
-on the disc). See `tools/bilingual.py`. Checked in Yaba Sanshiro with the
-area code forced to Japan, USA and Europe (title, game select, character
-select, story scene).
+on the disc). See `tools/bilingual.py`. Checked in Yaba Sanshiro up to the game
+select: HLE BIOS with the region taken from the disc (English), HLE with
+the area code forced to Japan (Japanese) and to Europe (English, also
+the character select and a story scene), the real US BIOS (English) and
+the real Japanese BIOS (Japanese).
 
 | File | Size | CRC32 |
 |---|---|---|
-| Puyo Puyo Sun (J+E) (Track 1).bin | 465300864 | `3abf2e9e` |
+| Puyo Puyo Sun (J+E) (Track 1).bin | 465300864 | `3305ac3c` |
 | Puyo Puyo Sun (J+E) (Track 2).bin | 5435472 | `3f0834c8` |
 
 ## Status
