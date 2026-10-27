@@ -19,6 +19,10 @@ the Puyo Nexus patch; credit for it goes to its authors.
 The disc image is not in this repository: the build script makes it from
 your own copy of the Japanese disc and the patch of the Windows version.
 
+## Support
+Hey dude! Help me out for a couple of :beers: or a :coffee:!<br/>
+[![coffee](https://www.buymeacoffee.com/assets/img/custom_images/black_img.png)](https://bmc.link/zanac)
+
 ## Building
 
 Python 3, standard library only.
