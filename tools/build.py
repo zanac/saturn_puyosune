@@ -1,7 +1,8 @@
 """Build the English disc: the data track of the Japanese disc (Rev A) with
-the files changed, from the Puyo Nexus patch of the Windows version.
+the files changed, from the translated assets of the Puyo Nexus patch of
+the Windows version (assets/saturn_puyosune_assets.zip, see assets.py).
 
-    python3 build.py TRACK1.bin grp.dat comic.scr OUT_DIR
+    python3 build.py TRACK1.bin OUT_DIR [ASSETS_ZIP]
 """
 import sys
 
@@ -24,23 +25,23 @@ import screens
 import signs
 from spr import Spr
 import options
-import pcgrp
+import assets
 import region
 import story
 import text
 import tutorial
 
 
-def build(track_path, grp_blob, comic):
+def build(track_path, pack):
+    """pack: the translated assets of the patch (assets.py)"""
     t = disc.Track(track_path)
     files = {}
     for name in t.files:
         files[name] = t.read(name)
     orig = dict(files)
-    grp = pcgrp.Grp(grp_blob)
     log = []
-    pc = font.pc_font(grp_blob)
-    log += images.build(files, grp)
+    pc = font.from_glyphs(pack.glyphs)
+    log += images.build(files, pack.pictures)
     log += options.build(files, pc)
     block = gfx.block_font(Spr(orig['FONT.SPR']))
     log += menus.build(files, pc, block)
@@ -52,11 +53,11 @@ def build(track_path, grp_blob, comic):
     log += atelier.build(files, pc)
     log += backup.build(files, pc)
     log += signs.build(files)
-    prog, glyphs, widths, tlog = text.build(files, grp_blob)
+    prog, glyphs, widths, tlog = text.build(files, pack.glyphs)
     log += tlog
     charmap = {c: [c] for c in glyphs}
     charmap[0x1f] = [0x2c, 0x20]        # the patch writes ", " as one character
-    log += story.build(prog, comic, charmap, widths)
+    log += story.build(prog, pack.story, charmap, widths)
     log += tutorial.build(prog, widths)
     log += screens.build(files, prog, pc, block)
     log += ranking.build(files, prog, block)
@@ -77,9 +78,9 @@ def build(track_path, grp_blob, comic):
 
 
 def main():
-    track, grp, comic, dst = sys.argv[1:5]
+    track, dst = sys.argv[1:3]
     import os
-    out, log = build(track, open(grp, 'rb').read(), open(comic, 'rb').read())
+    out, log = build(track, assets.load(*sys.argv[3:4]))
     for line in log:
         print(line)
     os.makedirs(dst, exist_ok=True)

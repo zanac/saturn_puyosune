@@ -2,7 +2,6 @@
 ASCII order, proportional), and English labels drawn with it into the
 cells of a sprite set.
 """
-import grpdat
 from gfx import Canvas, Font
 
 # colours of the patch's font pictures: outline 1, shading 12, body 15
@@ -11,21 +10,15 @@ SPACE_W = 6
 ELLIPSIS = '…'
 
 
-def pc_font(grp_blob):
-    ents = grpdat.entries(grp_blob)
-    o, s = ents[21]
-    d = grp_blob[o:o + s]
-    t, frames, parts, base = grpdat.parse(d)
+def from_glyphs(glyphs):
+    """the Font of the patch's glyphs (text.glyphs(), from assets.py)"""
+    from text import EXTRA
     g = {}
-    for k in list(range(0x21, 0x7f)) + [30]:
-        pw, ph, px, py, a, fl, off = parts[k]
-        src = d[base + off:base + off + pw * ph]
-        cell = [0] * 256
-        for y in range(ph):
-            for x in range(pw):
-                if px + x < 16 and py + y < 16:
-                    cell[(py + y) * 16 + px + x] = PC_COLOURS[src[y * pw + x]]
-        g[ELLIPSIS if k == 30 else chr(k)] = (pw, 16, 16, cell)
+    for c, (adv, cell) in glyphs.items():
+        if 0x21 <= c < 0x7f:
+            g[chr(c)] = (adv, 16, 16, cell)
+        elif c == EXTRA[ELLIPSIS]:
+            g[ELLIPSIS] = (adv, 16, 16, cell)
     g[' '] = (SPACE_W, 16, 16, [0] * 256)
     return Font(g, 16)
 

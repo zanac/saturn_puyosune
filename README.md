@@ -17,7 +17,10 @@ All the translation work in the story scenes and the win quotes is from
 the Puyo Nexus patch; credit for it goes to its authors.
 
 The disc image is not in this repository: the build script makes it from
-your own copy of the Japanese disc and the patch of the Windows version.
+your own copy of the Japanese disc. The translated assets of the Puyo
+Nexus patch that the build uses (the English font, the translated
+pictures and the story texts) are in `assets/saturn_puyosune_assets.zip`,
+so the patch of the Windows version is not needed.
 
 ## Support
 Hey dude! Help me out for a couple of :beers: or a :coffee:!<br/>
@@ -27,12 +30,13 @@ Hey dude! Help me out for a couple of :beers: or a :coffee:!<br/>
 
 Python 3, standard library only.
 
-    python3 tools/make_saturn_puyosune.py "Puyo Puyo Sun (Japan) (Rev A) (10M).cue" Puyo_Puyo_Sun__English_Patched_.zip OUT_DIR
+    python3 tools/make_saturn_puyosune.py "Puyo Puyo Sun (Japan) (Rev A) (10M).cue" OUT_DIR
 
 - The `.cue` is the Redump set of the Japanese disc, Rev A
   (track 1 CRC32 `e1afff40`, track 2 CRC32 `3f0834c8`).
-- The zip is the Puyo Nexus English patch of the Windows version, as
-  it comes (it holds `puyo3/grp.dat` and `puyo3/comic.scr`).
+- The assets are read from `assets/saturn_puyosune_assets.zip`; a third
+  argument gives another path. `tools/extract_assets.py` remakes that
+  zip from the Puyo Nexus patch (`Puyo_Puyo_Sun__English_Patched_.zip`).
 
 OUT_DIR receives `Puyo Puyo Sun (English).cue` and its two tracks. The
 data track is rebuilt with every sector's EDC/ECC; the audio track is
@@ -114,5 +118,9 @@ roll, which is English already.
 - `tools/story.py`: the 24 story scenes. The Saturn and Windows scenes
   have the same events at the same times, so each page gets the page of
   the patch, with its own pauses and typing speed.
+- `tools/assets.py`: reads `assets/saturn_puyosune_assets.zip`, the
+  translated assets of the patch; `tools/extract_assets.py` makes it from
+  the patch (`grp.dat` pictures through `tools/pcgrp.py` and
+  `tools/grpdat.py`, `comic.scr` through `tools/story.py`).
 - The other modules each handle one screen; `tools/build.py` runs them
   all.

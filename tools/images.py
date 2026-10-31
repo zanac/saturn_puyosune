@@ -34,16 +34,16 @@ def fit(p):
     return [p.px[(y * p.H // p.h) * p.W + x * p.W // p.w] for y in range(p.h) for x in range(p.w)], True
 
 
-def build(files, grp):
-    """files: {name: bytes} of the disc, changed in place"""
+def build(files, pictures):
+    """files: {name: bytes} of the disc, changed in place; pictures:
+    {(grp.dat entry, frame): Picture} (assets.py)"""
     log = []
     for name, entry, ids in PICTURES:
         s = Spr(files[name + '.SPR'])
-        pics = grp.frames(entry)
         n = shrunk = 0
         for i in ids:
             i, j = i if isinstance(i, tuple) else (i, i)
-            p = pics[j]
+            p = pictures[(entry, j)]
             w, h, o, size = s.desc[i]
             assert (p.w, p.h) == (w, h), (name, i)
             px, small = fit(p)

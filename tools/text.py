@@ -227,10 +227,10 @@ def quote_starts(prog):
     return out
 
 
-def build(files, grp):
-    """files: {name: bytes}, changed in place. Returns (Program, font,
-    widths, log); the program is written back by the caller."""
-    font = glyphs(grp)
+def build(files, font):
+    """files: {name: bytes}, changed in place; font: glyphs() of the patch
+    (assets.py). Returns (Program, font, widths, log); the program is
+    written back by the caller."""
     files['FONT.SPR'] = font_set(files['FONT.SPR'], font, LOW)
     files['FONT_DM.SPR'] = font_set(files['FONT_DM.SPR'], font, {})
     prog = Program(files['0'])

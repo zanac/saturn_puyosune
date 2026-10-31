@@ -188,10 +188,9 @@ def rd(b, a):
     return struct.unpack('>I', b[a:a + 4])[0]
 
 
-def build(prog, comic, charmap, widths):
+def build(prog, pcs, charmap, widths):
     """put the PC texts in the scenes of prog (text.Program). Returns a
     log."""
-    pcs = pc_scenes(comic)
     sat = saturn_scenes(prog.b, prog.base)
     assert len(pcs) == len(sat) == 24, (len(pcs), len(sat))
     texts = {}
